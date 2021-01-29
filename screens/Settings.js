@@ -2,7 +2,8 @@ import * as React from 'react';
 import { Alert, View, Text, Image, StyleSheet, Dimensions } from 'react-native';
 const {useState, useEffect} = React
 import { Icon, Button, Input } from 'react-native-elements';
-
+import DropDownPicker from 'react-native-dropdown-picker';
+import Textarea from 'react-native-textarea';
 
 import { createStackNavigator } from '@react-navigation/stack';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -144,8 +145,9 @@ function SettingStack({ navigation }) {
               
               });
 
-              setTitle("")
-              setMessage("")
+
+              // setTitle("")
+              // setMessage("")
               alert("Successfully Sent")
 
           } }
@@ -172,6 +174,23 @@ function SettingStack({ navigation }) {
         },
         body: JSON.stringify(message),
       });
+    }
+
+    const updateItem = (val)=>{
+      setTitle(val)
+
+      if(val == 'Announcement'){
+        setMessage("")
+      }
+      else if(val == 'Storm Emergency Alert!'){
+        setMessage(`Storm Warning Signal No. 0 within this area until 0pm today 00/00/00. Seek immediate shelter for common flooded areas. Check local media.`)
+      }
+      else if(val == 'Fire Emergency Alert!'){
+        setMessage(`Fire Warning Signal within this area until 0pm today 00/00/00. Seek immediate shelter. Stay Alert. Check local media`)
+      }
+      else if(val ==  'Earthquake Emergency Alert!'){
+        setMessage(`A 0 (MLv) Magnitude Earthquake hit (place) today 00:00pm. Damages and Aftershocks are expected. Stay alert and make sure to evacuate the area immediately.`)
+      }
     }
 
     return (
@@ -255,22 +274,58 @@ function SettingStack({ navigation }) {
                     Send Notification
                 </Text>
 
-                <Input
+
+                <DropDownPicker
+                items={[
+                {label: 'Announcement', value: 'Announcement', },
+                {label: 'Storm Emergency Alert!', value: 'Storm Emergency Alert!', },
+                {label: 'Fire Emergency Alert!', value: 'Fire Emergency Alert!', },
+                {label: 'Earthquake Emergency Alert! ', value: 'Earthquake Emergency Alert!', },
+                ]}
+                defaultValue={title}
+                containerStyle={{height: 40, marginTop: 25, marginBottom: 10 }}
+                style={{backgroundColor: '#fafafa' }}
+                itemStyle={{
+                justifyContent: 'flex-start'
+                }}
+                labelStyle={{
+                  fontSize: 16,
+                  textAlign: 'left',
+                  color: '#000'
+                }}
+                dropDownStyle={{backgroundColor: '#fafafa'}}
+                onChangeItem={(item) =>{updateItem(item.value)}}
+                />
+
+                {/* <Input
                 placeholder='Title'
                 leftIcon={{ type: 'ionicon', name: 'mail' }}
                 inputContainerStyle={{width: "100%"}}
                 errorMessage={titleError}
                 onChangeText={(text)=>{setTitle(text)}}
                 defaultValue={title}
-                />
-                <Input
+                /> */}
+                {/* <Input
                 placeholder='Message'
                 leftIcon={{ type: 'ionicon', name: 'mail' }}
                 inputContainerStyle={{width: "100%"}}
                 errorMessage={messageError}
                 onChangeText={(text)=>{setMessage(text)}}
                 defaultValue={message}
+                /> */}
+
+                <Textarea
+                containerStyle={styles.textareaContainer}
+                style={styles.textarea}
+                onChangeText={(text)=>{setMessage(text)}}
+                defaultValue={message}
+                minWidth="100%"
+                placeholder={'Write your announcement...'}
+                placeholderTextColor={'#c7c7c7'}
+                underlineColorAndroid={'transparent'}
                 />
+
+                
                 <Button title="Send" onPress={sendNotification}/>
 
             </View>
@@ -300,5 +355,21 @@ const styles = StyleSheet.create({
       paddingHorizontal: 15,
       paddingVertical: 20,
       
-  }
+  },
+  textareaContainer: {
+    height: 180,
+    padding: 12,
+    backgroundColor: '#F5FCFF',
+    borderColor: 'grey',
+    borderStyle: 'solid',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 15
+  },
+  textarea: {
+    textAlignVertical: 'top',  // hack android
+    height: 170,
+    fontSize: 16,
+    color: '#333',
+  },
 })

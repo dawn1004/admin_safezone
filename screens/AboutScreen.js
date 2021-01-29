@@ -84,7 +84,6 @@ const styles = StyleSheet.create({
   safeLogo: {
     width: 140,
     height: 140,
-    backgroundColor: 'white',
     borderRadius: 100,
     marginTop: 25,
     marginBottom: 15,

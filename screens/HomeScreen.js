@@ -229,6 +229,7 @@ function Home({ navigation }) {
                     containerStyle={{width: 200}}
                     onChangeText={(text)=>{checkPin(text)}}
                     errorMessage={pinError}
+                    secureTextEntry={true}
                     />
                     <TouchableOpacity
                     onPress={forgetPin}
