@@ -7,8 +7,9 @@ import Textarea from 'react-native-textarea';
 
 import { createStackNavigator } from '@react-navigation/stack';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import * as firebase from 'firebase'
+import AddNotiTemplate from "./AddNotiTemplate"
 
 const Stack = createStackNavigator();
 
@@ -38,6 +39,13 @@ export default function About({ navigation }) {
             ),
         }}
         />
+        <Stack.Screen 
+        name="AddNotiTemplate" 
+        component={AddNotiTemplate} 
+        options={{ 
+            title: 'Notification template',
+        }}
+        />
       </Stack.Navigator>
     );
   }
@@ -59,6 +67,9 @@ function SettingStack({ navigation }) {
     const [message, setMessage] = useState("")
     const [titleError, setTitleError] = useState("")
     const [messageError, setMessageError] = useState("")
+
+    const [templates, setTemplates] = useState([]);
+    const [templateLabel, setTemplateLabel] = useState([])
 
     const pinCodeRef = firebase.database().ref("/pincode");
     const tokenRef = firebase.database().ref("/token");
@@ -179,162 +190,172 @@ function SettingStack({ navigation }) {
     const updateItem = (val)=>{
       setTitle(val)
 
-      if(val == 'Announcement'){
-        setMessage("")
-      }
-      else if(val == 'Storm Emergency Alert!'){
-        setMessage(`Storm Warning Signal No. 0 within this area until 0pm today 00/00/00. Seek immediate shelter for common flooded areas. Check local media.`)
-      }
-      else if(val == 'Fire Emergency Alert!'){
-        setMessage(`Fire Warning Signal within this area until 0pm today 00/00/00. Seek immediate shelter. Stay Alert. Check local media`)
-      }
-      else if(val ==  'Earthquake Emergency Alert!'){
-        setMessage(`A 0 (MLv) Magnitude Earthquake hit (place) today 00:00pm. Damages and Aftershocks are expected. Stay alert and make sure to evacuate the area immediately.`)
-      }
+      templates.forEach(template=>{
+        if(template.title ==val){
+          setMessage(template.message)
+        }
+      })
+
     }
 
+
+    useEffect(()=>{
+       const templatesRefs = firebase.database().ref("/templates");
+
+       templatesRefs.on('value', function(snapshot) {
+          let templateList = [];
+          let Templates = snapshot.val()
+
+          for(id in Templates){
+            templateList.push(Templates[id])
+          }
+
+          setTemplates(templateList)
+
+          setTemplateLabel(()=>{
+            return templateList.map(val=>{
+              return{label: val.title, value: val.title}
+            })
+          })
+          
+      });
+
+    },[])
+
     return (
+
+    <ScrollView>
       <LinearGradient
       colors={['#ff4950', '#fa6869']}
-      style={{width: windowWidth, height: windowHeight}}
+      style={{width: windowWidth, height: "100%", position: "absolute"}}
       start={{x: 0, y:0.5}}
       end={{x: 0.5, y: 0.7}}
-      >  
-      <ScrollView>
-        <View style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40 }}>
+      ></LinearGradient>
 
-            <View style={styles.settingContainer}>
-                <Text style={{fontSize: 24, color: "#383838", marginLeft: 10}}>
-                    Change Pincode
-                </Text>
-                <Input
-                placeholder='Old Pincode'
-                leftIcon={{ type: 'ionicon', name: 'key' }}
-                inputContainerStyle={{width: "100%", marginTop: 30}}
-                defaultValue={oldPass}
-                onChangeText={(text)=>{setOldPass(text)}}
-                errorStyle={{ color: 'red' }}
-                errorMessage={oldPinError}
-                secureTextEntry={eyes1}
-                rightIcon={
-                    <Icon
-                      name={eyes1? 'eye-off': 'eye'}
-                      type="ionicon"
-                      color='grey'
-                      onPress={()=>{setEyes1(oldVal=>!oldVal)}}
-                    />
-                }
-                />
-                <Input
-                placeholder='New Pincode'
-                leftIcon={{ type: 'ionicon', name: 'key' }}
-                inputContainerStyle={{width: "100%"}}
-                defaultValue={newPass}
-                onChangeText={(text)=>{setNewPass(text)}}
-                errorMessage={newPinError}
-                secureTextEntry={eyes2}
-                rightIcon={
-                    <Icon
-                      name={eyes2? 'eye-off':'eye'}
-                      type="ionicon"
-                      color='grey'
-                      onPress={()=>{setEyes2(oldVal=>!oldVal)}}
-                    />
-                }
-                />
-                <Input
-                placeholder='Confirm Pincode'
-                leftIcon={{ type: 'ionicon', name: 'key' }}
-                inputContainerStyle={{width: "100%"}}
-                defaultValue={confirmPass}
-                onChangeText={(text)=>{setConfirmPass(text)}}
-                errorMessage={confirmPassError}
-                secureTextEntry={eyes3}
-                rightIcon={
-                    <Icon
-                      name={eyes3? 'eye-off':'eye'}
-                      type="ionicon"
-                      color='grey'
-                      onPress={()=>{setEyes3(oldVal=>!oldVal)}}
-                    />
-                }
-                />
+      <View style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40 }}>
 
-                <Button title="Submit" onPress={validatePin}/>
-            </View>
+          <View style={styles.settingContainer}>
+              <Text style={{fontSize: 24, color: "#383838", marginLeft: 10}}>
+                  Change Pincode
+              </Text>
+              <Input
+              placeholder='Old Pincode'
+              leftIcon={{ type: 'ionicon', name: 'key' }}
+              inputContainerStyle={{width: "100%", marginTop: 30}}
+              defaultValue={oldPass}
+              onChangeText={(text)=>{setOldPass(text)}}
+              errorStyle={{ color: 'red' }}
+              errorMessage={oldPinError}
+              secureTextEntry={eyes1}
+              rightIcon={
+                  <Icon
+                    name={eyes1? 'eye-off': 'eye'}
+                    type="ionicon"
+                    color='grey'
+                    onPress={()=>{setEyes1(oldVal=>!oldVal)}}
+                  />
+              }
+              />
+              <Input
+              placeholder='New Pincode'
+              leftIcon={{ type: 'ionicon', name: 'key' }}
+              inputContainerStyle={{width: "100%"}}
+              defaultValue={newPass}
+              onChangeText={(text)=>{setNewPass(text)}}
+              errorMessage={newPinError}
+              secureTextEntry={eyes2}
+              rightIcon={
+                  <Icon
+                    name={eyes2? 'eye-off':'eye'}
+                    type="ionicon"
+                    color='grey'
+                    onPress={()=>{setEyes2(oldVal=>!oldVal)}}
+                  />
+              }
+              />
+              <Input
+              placeholder='Confirm Pincode'
+              leftIcon={{ type: 'ionicon', name: 'key' }}
+              inputContainerStyle={{width: "100%"}}
+              defaultValue={confirmPass}
+              onChangeText={(text)=>{setConfirmPass(text)}}
+              errorMessage={confirmPassError}
+              secureTextEntry={eyes3}
+              rightIcon={
+                  <Icon
+                    name={eyes3? 'eye-off':'eye'}
+                    type="ionicon"
+                    color='grey'
+                    onPress={()=>{setEyes3(oldVal=>!oldVal)}}
+                  />
+              }
+              />
 
-          
+              <Button title="Submit" onPress={validatePin}/>
           </View>
 
-          {/* start of noti */}
-          <View style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40, marginBottom: 350 }}>
+        
+        </View>
 
-            <View style={styles.settingContainer}>
+        {/* start of noti */}
+        <View style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40, marginBottom: 100 }}>
+
+          <View style={styles.settingContainer}>
+              <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
                 <Text style={{fontSize: 24, color: "#383838", marginLeft: 10}}>
                     Send Notification
                 </Text>
+                <TouchableOpacity
+                onPress={()=>{navigation.navigate("AddNotiTemplate")}}
+                >
+                  <Icon
+                      size={34}
+                      name="plus-square"
+                      type="font-awesome"
+                      color='#5cb85c'
+                      onPress={()=>{setEyes3(oldVal=>!oldVal)}}
+                  />
+                </TouchableOpacity>
+
+              </View>
 
 
-                <DropDownPicker
-                items={[
-                {label: 'Announcement', value: 'Announcement', },
-                {label: 'Storm Emergency Alert!', value: 'Storm Emergency Alert!', },
-                {label: 'Fire Emergency Alert!', value: 'Fire Emergency Alert!', },
-                {label: 'Earthquake Emergency Alert! ', value: 'Earthquake Emergency Alert!', },
-                ]}
-                defaultValue={title}
-                containerStyle={{height: 40, marginTop: 25, marginBottom: 10 }}
-                style={{backgroundColor: '#fafafa' }}
-                itemStyle={{
-                justifyContent: 'flex-start'
-                }}
-                labelStyle={{
-                  fontSize: 16,
-                  textAlign: 'left',
-                  color: '#000'
-                }}
-                dropDownStyle={{backgroundColor: '#fafafa'}}
-                onChangeItem={(item) =>{updateItem(item.value)}}
-                />
+              <DropDownPicker
+              items={templateLabel}
+              defaultValue={title}
+              containerStyle={{height: 40, marginTop: 25, marginBottom: 10 }}
+              style={{backgroundColor: '#fafafa' }}
+              itemStyle={{
+              justifyContent: 'flex-start'
+              }}
+              labelStyle={{
+                fontSize: 16,
+                textAlign: 'left',
+                color: '#000'
+              }}
+              dropDownStyle={{backgroundColor: '#fafafa'}}
+              onChangeItem={(item) =>{updateItem(item.value)}}
+              />
 
-                {/* <Input
-                placeholder='Title'
-                leftIcon={{ type: 'ionicon', name: 'mail' }}
-                inputContainerStyle={{width: "100%"}}
-                errorMessage={titleError}
-                onChangeText={(text)=>{setTitle(text)}}
-                defaultValue={title}
-                /> */}
-                {/* <Input
-                placeholder='Message'
-                leftIcon={{ type: 'ionicon', name: 'mail' }}
-                inputContainerStyle={{width: "100%"}}
-                errorMessage={messageError}
-                onChangeText={(text)=>{setMessage(text)}}
-                defaultValue={message}
-                /> */}
-
-                <Textarea
-                containerStyle={styles.textareaContainer}
-                style={styles.textarea}
-                onChangeText={(text)=>{setMessage(text)}}
-                defaultValue={message}
-                minWidth="100%"
-                placeholder={'Write your announcement...'}
-                placeholderTextColor={'#c7c7c7'}
-                underlineColorAndroid={'transparent'}
-                />
-
-                
-                <Button title="Send" onPress={sendNotification}/>
-
-            </View>
+              <Textarea
+              containerStyle={styles.textareaContainer}
+              style={styles.textarea}
+              onChangeText={(text)=>{setMessage(text)}}
+              defaultValue={message}
+              minWidth="100%"
+              placeholder={'Write your announcement...'}
+              placeholderTextColor={'#c7c7c7'}
+              underlineColorAndroid={'transparent'}
+              />
+              
+              <Button title="Send" onPress={sendNotification}/>
 
           </View>
- 
- 
-        </ScrollView>
-      </LinearGradient>
+
+
+        </View>
+      </ScrollView>
+      
     );
 }
 

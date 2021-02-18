@@ -91,13 +91,15 @@ export default function Burn({ route, navigation }) {
 
     return (
 
-      <LinearGradient
-      colors={['#fef9f9', '#f9cbcb']}
-      style={{width: windowWidth, height: windowHeight}}
-      start={{x: 0, y:0.5}}
-      end={{x: 0.5, y: 0.7}}
-      >  
+
         <SafeAreaView style={{ flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            
+            <LinearGradient
+            colors={['#fef9f9', '#f9cbcb']}
+            style={{width: windowWidth, height: "100%", position: "absolute"}}
+            start={{x: 0, y:0.5}}
+            end={{x: 0.5, y: 0.7}}
+            ></LinearGradient>
             <ScrollView>
               <View style={styles.container}>     
 
@@ -187,7 +189,7 @@ export default function Burn({ route, navigation }) {
             </ScrollView>
 
         </SafeAreaView>
-        </LinearGradient>
+        
 
     );
 }

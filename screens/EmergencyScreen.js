@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Dimensions, View, Text, SafeAreaView, StyleSheet, Alert } from 'react-native';
+import { Linking, Dimensions, View, Text, SafeAreaView, StyleSheet, Alert } from 'react-native';
 const {useState, useEffect, useContext} = React
 import { Icon, Button, Image, Input } from 'react-native-elements';
 
@@ -109,6 +109,7 @@ function EmergencyStack({ navigation }) {
       );
     }
     
+
     const addContact = ()=>{
       let encounteredError = false
       setNumberError('')
@@ -139,6 +140,10 @@ function EmergencyStack({ navigation }) {
     }
 
 
+    const callLinkHandler = (contact)=>{
+      Linking.openURL(`tel:${contact.split("/")[0]}`)
+    }
+    
 
     return (
       <LinearGradient
@@ -201,11 +206,14 @@ function EmergencyStack({ navigation }) {
             <View style={{width: windowWidth, alignItems: 'center'}}>
               {
                 contacts.map(contact=>(
-                  <View style={styles.cardu} key={contact.id}>
-                    <View style={{marginLeft: 50, maxWidth: 190}}>
+                  <View 
+                  style={styles.cardu} key={contact.id}>
+                    <TouchableOpacity 
+                    onPress={()=>{callLinkHandler(contact.contact)}}
+                    style={{marginLeft: 50, maxWidth: 190}}>
                       <Text style={{...styles.defaulText, fontWeight: "bold",}}>{contact.name}: </Text>
                       <Text style={styles.defaulText}>{contact.contact}</Text>
-                    </View>
+                    </TouchableOpacity>
                     <View>
                       <TouchableOpacity>
                         <Icon
